@@ -1,0 +1,63 @@
+XMPP定义了两个个或更多通信实体之间传递数据所有采用的格式。对于XMPPP，实体通常是客户端和服务器，但它也允许两台服务器或客户端之前进行对等通信。
+
+
+XMPP结
+核心结:
+ <stream:stream> 根节点
+ <presence>  -- 确定服务器是否可访问。既有简单的“在线”和离线，又有更复杂的“离开”和“请勿打扰”。
+  1.普通presence节
+    <presence />  -- 出席状态设置为在线
+
+    <presence type='unavailable'> -- 出席状态设置为离线
+
+    <presence>
+       <show>away</show>  -- 传达用户可访问性质,该节点只能用在presence中,而且只能包含如下几个值away(离开),chat(有意聊天),dnd(不希望打扰)和xa(长期离开).
+       <status> at the ball</status> -- 具体传达信息
+    </presence>
+
+    <presence>
+       <status>touring the countryside</status>
+       <priority>10</priority> -- 连接优先级(-128~127),默认为0,负优先级的资源绝不会接收到通过裸JID寻址方式传送给他们的消息。
+    </presence>
+
+    <presence>
+       <priority>10</priority>
+    </presence>
+
+
+ <message>  -- 发送具体消息
+  用来从一个实体向另一个实体发送消息。
+  <message>节属于"发射后不管"型，没有内在的可靠性。
+  1.消息类型
+  <message>节有几种不同的类型，这些类型由type属性指出,该属性的取值chat、error、normal、groupchat或headline。
+  chat:一对一聊天对话上下文中发送。
+  error:在答复某条导致错误的消息时。
+  normal:在一对一聊天上下文之外。
+  groupchat:多人聊天中发送的消息。
+  headline:被那些不希望或不支持应答的自动化服务使用。如果自动生成的电子携带type属性,那么它的值将使用headline值。
+  2.消息内容
+  <body>元素包含着该消息中人类可读的内容。可以包含多个<body>元素，只要它们包含不同的xml:lang属性即可，这可以让我们发送携带多种语言内容的<message>节。
+  对话可以形成线索，线索中的每条消息都与相同的对话相关联。可以用过向<message>节中添加一个<thread>元素来创建线索。<thread>元素的内容是一个用来区分不同线索的唯一标识符。应答节应该包含与它所应答的节相同的<thread>元素。
+
+
+ <iq>  -- 联系人列表
+  <iq>节表示的是Info/Query(信息与查询),这为xmpp通信提供请求与响应机制。
+  <iq>节有四种，通过该节的type属性区分.有两种<iq>节请求(get和set)和两种响应(result和error)。
+
+
+  <error>
+   <error>子节必须携带必要的type属性.
+   cancel:表求不应该重试该动作，这是因为它总会失败。
+   continue:通常代表一条警告信息，这个值平时很少用到。
+   modify:发送的数据需要一些修改才会被接受。
+   auth:通知实体在以某种方式进行身份验证之后重试该动作。
+   wait:报告服务器临时遇到问题，应该在稍后将原节原封不动地重新发送。
+   <error>它还可以包含一个<text>元素来进一步指出有关该错误的详细信息。
+通用属性
+ 1.form 识别该节的起始JID
+ 2.to XMPP服务器把XML节发送到to属性中指定的JID
+ 3.type 指定了<presence>、<message> 或 <iq>节的具体类型。
+ 4.id 可以指定id属性以辅助识别响应。对于<iq>节，这个属性是必须的，但对于其它两个节，该属性是可选的。
+
+
+XMPP基本实现方式，1建立连接 2建立流 3身份验证 4断开连接
